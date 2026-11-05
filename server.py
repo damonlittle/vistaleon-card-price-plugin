@@ -11,7 +11,7 @@ Run locally (stdio, for MCP Inspector / Claude Desktop):
 
 Run as a remote server (what ChatGPT connects to):
     MCP_TRANSPORT=http PORT=8000 .venv/bin/python server.py
-    # serves streamable HTTP at http://localhost:8000/mcp
+    # serves streamable HTTP at http://localhost:8000/api/mcp
 """
 
 import asyncio
@@ -271,6 +271,9 @@ if __name__ == "__main__":
         port = int(os.environ.get("PORT", "8000"))
         mcp.settings.port = port
         mcp.settings.host = "0.0.0.0"
+        # Railway's edge reserves /mcp on customer domains (421), so serve
+        # the MCP endpoint at /api/mcp instead.
+        mcp.settings.streamable_http_path = "/api/mcp"
         mcp.run(transport="streamable-http")
     else:
         mcp.run(transport="stdio")
