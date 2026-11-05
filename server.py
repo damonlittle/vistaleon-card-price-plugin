@@ -22,6 +22,7 @@ import urllib.parse
 
 import httpx
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 TCGDEX_BASE = "https://api.tcgdex.net/v2/en"
 VISTALEON_SEARCH = "https://vistaleon.com/search?q="
@@ -271,9 +272,16 @@ if __name__ == "__main__":
         port = int(os.environ.get("PORT", "8000"))
         mcp.settings.port = port
         mcp.settings.host = "0.0.0.0"
-        # Railway's edge reserves /mcp and /api/mcp on customer domains
-        # (421 "Invalid Host header"), so serve the MCP endpoint at /v1/mcp.
+        # Endpoint is /v1/mcp (kept versioned; the path itself is arbitrary,
+        # ChatGPT just needs the full URL).
         mcp.settings.streamable_http_path = "/v1/mcp"
+        # FastMCP bakes localhost-only DNS rebinding protection in at
+        # construction, so a public hostname gets a 421 "Invalid Host header"
+        # on every MCP request. This is a public, read-only price server,
+        # so turn that Host check off for the HTTP transport.
+        mcp.settings.transport_security = TransportSecuritySettings(
+            enable_dns_rebinding_protection=False
+        )
         mcp.run(transport="streamable-http")
     else:
         mcp.run(transport="stdio")
