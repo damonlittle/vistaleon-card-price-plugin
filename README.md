@@ -34,7 +34,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 # Remote server (what ChatGPT connects to):
 MCP_TRANSPORT=http PORT=8000 .venv/bin/python server.py
-# serves http://localhost:8000/mcp
+# serves http://localhost:8000/v1/mcp
 ```
 
 Tests: `.venv/bin/python test_client.py` (stdio) and `test_http.py` (HTTP,
@@ -48,7 +48,15 @@ The server needs a public HTTPS URL. Easiest path, no code changes:
 2. **Railway** (railway.app): New Project → Deploy from GitHub → it reads the
    `Dockerfile` and sets `PORT` automatically. Or **Render**: New Web Service
    → Docker → same repo. Or **Fly.io**: `fly launch` with the Dockerfile.
-3. Note the public URL, e.g. `https://vistaleon-card-prices.up.railway.app/mcp`.
+3. Note the public URL. Live deployment (Nov 4, 2026):
+
+   **https://vistaleon-card-price-plugin-production.up.railway.app/v1/mcp**
+
+   GitHub: https://github.com/visioncutpro/vistaleon-card-price-plugin
+   Railway project: vistaleon-card-price-plugin (visioncutpro workspace).
+   Note: the MCP endpoint is `/v1/mcp`, and the server disables FastMCP's
+   localhost-only DNS rebinding Host check for the public HTTP transport
+   (it returns 421 on a public hostname otherwise).
 
 No secrets needed: no API keys, no database. TCGdex is free and keyless.
 
